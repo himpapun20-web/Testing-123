@@ -57,6 +57,11 @@ def _data_uri(asset: Asset | None) -> str | None:
     return f"data:{mime};base64,{base64.b64encode(payload).decode('ascii')}"
 
 
+def _company_logo_data_uri() -> str:
+    payload = (TEMPLATE_DIR / "company-logo.png").read_bytes()
+    return f"data:image/png;base64,{base64.b64encode(payload).decode('ascii')}"
+
+
 def report_context(db: Session, project_id: str) -> dict[str, Any]:
     query = select(Project).options(
         joinedload(Project.company),
@@ -219,6 +224,7 @@ def report_context(db: Session, project_id: str) -> dict[str, Any]:
     return {
         "project": project,
         "company": company,
+        "company_logo_data_uri": _company_logo_data_uri(),
         "fixed_sections": fixed_sections,
         "pipe_rows": pipe_rows,
         "inspection_rows": inspection_rows,
