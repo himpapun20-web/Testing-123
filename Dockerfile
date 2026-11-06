@@ -38,4 +38,4 @@ COPY backend/alembic.ini ./backend/alembic.ini
 COPY backend/templates ./backend/templates
 COPY --from=frontend-build /app/dist ./dist
 
-CMD ["sh", "-c", "python -m app.render_startup && exec python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000} --proxy-headers --forwarded-allow-ips=*"]
+CMD ["sh", "-c", "python -m alembic -c backend/alembic.ini upgrade head && python -m app.render_startup && exec python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000} --proxy-headers --forwarded-allow-ips=*"]
