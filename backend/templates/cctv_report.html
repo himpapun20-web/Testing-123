@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ project.project_name }} — CCTV Survey Report</title>
+<style>
+@page { size: A4 portrait; margin: 20mm 15mm 18mm; @top-left { content: element(page-header); } @bottom-left { content: element(page-footer); } @bottom-right { content: counter(page); color:#444; font-size:8pt; } }
+@page cover { size:A4 portrait; margin:0; @top-left { content:none; } @bottom-left { content:none; } @bottom-right { content:none; } }
+@page wide { size:A4 landscape; margin:14mm 13mm 15mm; @top-left { content:element(page-header); } @bottom-left { content:element(page-footer); } @bottom-right { content:counter(page); color:#444; font-size:8pt; } }
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; font-family:Arial,"Liberation Sans",sans-serif; color:#15191c; font-size:9pt; line-height:1.45; }
+body { background:#fff; }
+.running-header { position:running(page-header); width:180mm; display:flex; justify-content:space-between; gap:8mm; border-bottom:.6pt solid #343a40; padding:0 0 2mm; font-size:7.5pt; color:#222; }
+.running-footer { position:running(page-footer); width:180mm; display:flex; justify-content:space-between; border-top:.5pt solid #777; padding-top:2mm; font-size:7pt; color:#333; }
+.cover { page:cover; position:relative; isolation:isolate; height:297mm; padding:16mm 14mm 12mm; display:flex; flex-direction:column; justify-content:space-between; }
+.cover-background { position:absolute; z-index:0; inset:0; width:100%; height:100%; object-fit:cover; }
+.cover > :not(.cover-background) { position:relative; z-index:1; }
+.cover-company { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1pt solid #20272c; padding-bottom:4mm; }
+.wordmark { display:flex; align-items:center; gap:4mm; max-width:75mm; }
+.company-logo { width:20mm; height:17mm; object-fit:contain; flex:none; }
+.company-name { font-size:12pt; font-weight:bold; text-transform:uppercase; line-height:1.15; }
+.company-contact { max-width:99mm; text-align:right; font-size:7.4pt; line-height:1.35; }
+.cover-title { text-align:center; margin-top:6mm; }
+.cover-title h1 { font-size:22pt; letter-spacing:.3pt; text-transform:uppercase; text-decoration:underline; text-underline-offset:3pt; margin:8mm 0 2mm; }
+.cover-meta { width:100%; border-collapse:collapse; margin:7mm 0 0 10mm; font-size:12pt; }
+.cover-meta td { padding:3mm 2mm; vertical-align:top; }
+.cover-meta td:first-child { width:30%; font-weight:bold; }
+.cover-meta td:nth-child(2) { width:5%; font-weight:bold; }
+.cover-ref { text-align:center; color:#29333b; font-size:8pt; margin-top:4mm; }
+.cover-footer { border-top:.5pt solid #737b80; padding-top:2mm; text-align:center; font-size:7pt; }
+.section { page-break-before:always; break-before:page; }
+.section-title { font-size:14pt; line-height:1.2; font-weight:bold; text-transform:uppercase; margin:0 0 6mm; }
+.sub-title { font-size:11pt; line-height:1.2; font-weight:bold; margin:0 0 4mm; }
+.eyebrow { color:#1d5571; font-size:7.4pt; font-weight:bold; letter-spacing:.65pt; text-transform:uppercase; margin:0 0 2mm; }
+.statement-top { margin:24mm 0 8mm; }
+.statement-fields { width:100%; border-collapse:collapse; margin:0 0 13mm; }
+.statement-fields td { padding:2.8mm 0; vertical-align:top; }
+.statement-fields td:first-child { width:21%; }
+.statement-fields td:nth-child(2) { width:5%; }
+.statement-copy { margin:2mm 0 30mm; max-width:165mm; }
+.signoff { margin:0 0 7mm; line-height:1.55; }
+.signature-line { width:57mm; border-bottom:1pt solid #111; height:16mm; margin-top:10mm; }
+.signature-name { margin-top:1mm; }
+.contents-title { text-align:center; margin:4mm auto 12mm; width:max-content; border-bottom:1pt solid #111; font-size:14pt; font-weight:bold; text-transform:uppercase; }
+.toc { list-style:none; margin:0; padding:0 9mm; }
+.toc li { display:flex; gap:3mm; align-items:baseline; padding:1.7mm 0; border-bottom:.3pt dotted #aaa; }
+.toc-num { width:9mm; flex:none; color:#1b1e20; }
+.toc a { flex:1; color:#111; text-decoration:none; }
+.toc a::after { content:leader(".") target-counter(attr(href),page); }
+.toc .toc-indent { padding-left:14mm; font-size:8.5pt; }
+.intro-method { min-height:235mm; }
+.method-copy { margin:3mm 0 2mm 4mm; white-space:pre-wrap; }
+.intro-copy { margin-bottom:6mm; white-space:pre-wrap; }
+.fixed-text { white-space:pre-wrap; }
+.summary-table, .data-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:7.4pt; margin:4mm 0; }
+.data-table th, .summary-table th { border:.6pt solid #111; padding:1.7mm 1.2mm; text-align:center; vertical-align:middle; font-weight:bold; }
+.data-table td, .summary-table td { border:.5pt solid #333; padding:1.5mm 1.2mm; vertical-align:top; overflow-wrap:anywhere; }
+.data-table thead { display:table-header-group; }
+.data-table tr, .summary-table tr { page-break-inside:avoid; }
+.summary-table { font-size:6.6pt; }
+.summary-table th { background:#f1f3f4; }
+.tiny { font-size:6.4pt; }
+.small { font-size:7.5pt; }
+.muted { color:#5b6268; }
+.value-box { border:.7pt solid #535b61; padding:3mm; min-height:12mm; }
+.note { border-left:2pt solid #1d5571; background:#f4f6f7; padding:3mm 4mm; margin:4mm 0; font-size:8pt; }
+.report-stat-grid { display:flex; gap:4mm; margin:4mm 0 7mm; }
+.stat { flex:1; border:.7pt solid #555; padding:3mm; text-align:center; }
+.stat strong { display:block; font-size:16pt; }
+.stat span { display:block; font-size:7pt; text-transform:uppercase; margin-top:1mm; }
+.section-divider { min-height:245mm; display:flex; flex-direction:column; justify-content:center; border-top:1pt solid #444; border-bottom:1pt solid #444; padding:15mm; }
+.section-divider .appendix-label { color:#1d5571; font-size:12pt; font-weight:bold; letter-spacing:1pt; }
+.section-divider h2 { font-size:26pt; margin:7mm 0; text-transform:uppercase; }
+.section-divider p { font-size:11pt; }
+.site-plan { width:100%; max-height:238mm; object-fit:contain; margin-top:5mm; }
+.signature-rule { border-top:.6pt solid #333; margin-top:22mm; padding-top:2mm; width:80mm; }
+.profile-table { width:100%; border-collapse:collapse; margin:6mm 0; }
+.profile-table td { border:.7pt solid #555; padding:4mm; }
+.profile-line { height:12mm; position:relative; }
+.profile-line:before { content:""; position:absolute; left:1mm; right:1mm; top:5mm; border-top:1.2pt solid #1d5571; }
+.profile-line:after { content:""; position:absolute; right:1mm; top:3.6mm; border-top:3pt solid transparent; border-bottom:3pt solid transparent; border-left:5pt solid #1d5571; }
+  .material-list { columns:2; margin:4mm 0; }
+  .material-list div { padding:1mm 0; }
+  .grade-note { margin:2mm 0; }
+  .wide { page:auto; }
+  .timeline-layout { display:flex; gap:8mm; min-height:145mm; }
+  .timeline-column { width:64mm; flex:none; border-right:.7pt solid #7b8186; padding-right:5mm; }
+  .timeline-title { font-weight:bold; margin-bottom:3mm; }
+.timeline-axis { height:128mm; position:relative; margin:2mm 0 0 18mm; border-left:1.2pt solid #1d5571; }
+.timeline-end { position:absolute; left:-18mm; font-size:7pt; width:16mm; }
+.timeline-end.start { top:-2mm; }
+.timeline-end.finish { bottom:-2mm; }
+.timeline-marker { position:absolute; left:-2.2mm; width:4.4mm; height:4.4mm; border-radius:50%; border:1pt solid #1d5571; background:#fff; }
+.timeline-marker:after { content:attr(data-label); position:absolute; left:6mm; top:-1mm; white-space:nowrap; font-size:6.7pt; background:#fff; padding:0 1mm; }
+  .timeline-details { flex:1; }
+  .event-card { border-bottom:.5pt solid #92999e; padding:2.5mm 0; page-break-inside:avoid; }
+  .event-card h3 { margin:0 0 1.3mm; font-size:9pt; }
+  .event-meta { display:flex; gap:5mm; flex-wrap:wrap; font-size:7.4pt; margin-bottom:1mm; }
+  .event-description { margin:1mm 0; white-space:pre-wrap; }
+  .photo-sheet-table { width:100%; border-collapse:collapse; table-layout:fixed; margin:4mm 0; }
+  .photo-sheet-title { text-align:center; margin-bottom:2mm; }
+  .photo-sheet-table thead { display:table-header-group; }
+  .photo-sheet-table th, .photo-sheet-table td { border:.5pt solid #333; padding:1.6mm; vertical-align:middle; text-align:center; }
+  .photo-sheet-table th { background:#f1f3f4; font-size:7pt; }
+  .photo-record { page-break-inside:avoid; break-inside:avoid; }
+  .photo-record td { border:0; padding:3mm 0 4mm; }
+  .photo-card { page-break-inside:avoid; break-inside:avoid; margin:0 auto; text-align:center; }
+  .photo-card img { display:block; width:122mm; max-height:78mm; object-fit:contain; margin:0 auto 1.5mm; }
+  .photo-caption { max-width:155mm; margin:0 auto; font-size:7.8pt; text-align:center; }
+  .photo-caption .photo-no { font-size:9pt; font-weight:bold; color:#1d5571; }
+  .photo-caption p { display:inline-block; margin:1mm 1.5mm; }
+.no-evidence { border:1pt dashed #777; min-height:30mm; display:flex; align-items:center; justify-content:center; text-align:center; padding:8mm; color:#4b5155; }
+.code { font-family:"Liberation Mono",monospace; }
+</style>
+</head>
+<body>
+<section class="cover" id="section-cover">
+  <img class="cover-background" src="{{ cover_background_data_uri }}" alt="">
+  <div>
+    <div class="cover-company">
+      <div class="wordmark"><img class="company-logo" src="{{ company_logo_data_uri }}" alt="{{ company.company_name }} logo"><div class="company-name">{{ company.company_name }}</div></div>
+      <div class="company-contact">
+        {% if company.address_line_1 %}{{ company.address_line_1 }}{% endif %}{% if company.address_line_2 %} · {{ company.address_line_2 }}{% endif %}<br>
+        {% if company.phone %}Tel: {{ company.phone }}{% endif %}{% if company.fax %} · Fax: {{ company.fax }}{% endif %}<br>
+        {% if company.email %}Email: {{ company.email }}{% endif %}{% if company.website %} · {{ company.website }}{% endif %}
+      </div>
+    </div>
+    <div class="cover-title"><h1>CCTV Survey Report</h1></div>
+    <table class="cover-meta"><tbody>
+      <tr><td>Client</td><td>:</td><td>{{ project.client_name or "Not provided" }}</td></tr>
+      <tr><td>Location</td><td>:</td><td>{{ project.location or "Not provided" }}</td></tr>
+      <tr><td>Report Date</td><td>:</td><td>{{ project.report_date.strftime("%d/%m/%Y") if project.report_date else "Not provided" }}</td></tr>
+      <tr><td>TV Ref.</td><td>:</td><td>{{ project.tv_reference_no or "Not provided" }}</td></tr>
+      <tr><td>Project</td><td>:</td><td>{{ project.project_name }} ({{ project.project_code }})</td></tr>
+      <tr><td>Date of Survey</td><td>:</td><td>{{ project.survey_start_date.strftime("%d %b %Y") if project.survey_start_date else "Not provided" }}{% if project.survey_end_date and project.survey_end_date != project.survey_start_date %} – {{ project.survey_end_date.strftime("%d %b %Y") }}{% endif %}</td></tr>
+    </tbody></table>
+  </div>
+  <div><p class="cover-ref">{{ company.email or "" }}{% if company.phone %} · {{ company.phone }}{% endif %}</p><div class="cover-footer">{{ company.company_name }}{% if company.address_line_1 %} · {{ company.address_line_1 }}{% endif %} · CCTV Survey Report</div></div>
+</section>
+<div class="running-header"><span>CCTV Survey at {{ project.location or "Not provided" }}</span><span>{{ project.tv_reference_no or "Not provided" }}</span></div>
+<div class="running-footer"><span>{{ company.company_name }} · {{ project.project_code }}</span><span>Generated {{ generated_on }}</span></div>
+
+<section class="section" id="section-statement">
+  <div class="statement-top">
+    <table class="statement-fields"><tbody>
+      <tr><td>Client</td><td>:</td><td><strong>{{ project.client_name or "Not provided" }}</strong></td></tr>
+      <tr><td>Location</td><td>:</td><td><strong>{{ project.location or "Not provided" }}</strong></td></tr>
+      <tr><td>Date of Survey</td><td>:</td><td><strong>{{ project.survey_start_date.strftime("%d %b %Y") if project.survey_start_date else "Not provided" }}{% if project.survey_end_date and project.survey_end_date != project.survey_start_date %} – {{ project.survey_end_date.strftime("%d %b %Y") }}{% endif %}</strong></td></tr>
+    </tbody></table>
+    <div class="statement-copy"><u>Statement of Conformity</u><p class="fixed-text">{{ fixed_sections.get("statement", {}).get("content", "Statement of Conformity content has not been configured for this report template.") }}</p></div>
+    <div class="signoff">For and on behalf of<br><strong>{{ company.company_name }}</strong><br><br>{{ project.project_manager_name or "Project Manager" }}</div>
+    <div class="signature-line"></div><div class="signature-name">{{ project.project_manager_name or "Project Manager" }}</div>
+    <p>EUSR Certificate No.: {{ project.eusr_certificate_no or "Not provided" }}</p>
+  </div>
+</section>
+
+<section class="section" id="section-contents">
+  <div class="running-header"><span>CCTV Survey at {{ project.location or "Not provided" }}</span><span>{{ project.tv_reference_no or "Not provided" }}</span></div>
+  <h1 class="contents-title">Contents</h1>
+  <ol class="toc">{% for item in toc %}<li class="{% if item.code in ['project-information','survey-overview','section-summary','detailed-section-report','defect-summary','section-profile','scoring-summary','survey-status'] %}toc-indent{% endif %}"><span class="toc-num">{{ loop.index if loop.index < 8 else "" }}</span><a href="#section-{{ item.code }}">{{ item.title }}</a></li>{% endfor %}</ol>
+</section>
+
+<section class="section intro-method" id="section-introduction">
+  <h1 class="section-title">{{ fixed_sections.get("introduction", {}).get("title", "1) Introduction") }}</h1>
+  <div class="intro-copy">{{ fixed_sections.get("introduction", {}).get("content", "Introduction content has not been configured for this report template.") }}</div>
+  <h1 class="section-title" id="section-method-statement">{{ fixed_sections.get("method", {}).get("title", "2) Method Statement") }}</h1>
+  <div class="method-copy">{{ fixed_sections.get("method", {}).get("content", "Method Statement content has not been configured for this report template.") }}</div>
+</section>
+
+<section class="section" id="section-summary">
+  <h1 class="section-title">{{ fixed_sections.get("summary", {}).get("title", "3) Summary of Pipelines Condition & Site Environment") }}</h1>
+  <table class="summary-table"><thead><tr><th>Pipe ID</th><th>Start MH</th><th>To MH</th><th>Function<br>(S/F)</th><th>Survey Length (m)</th><th>Pipe Size (mm)</th><th>Pipe Material</th><th>Remarks / Survey Abandoned</th><th>Defects</th><th>Recommendation</th><th>Condition Grade</th></tr></thead><tbody>
+  {% for pipe in pipe_rows %}<tr><td>{{ pipe.pipe_id }}</td><td>{{ pipe.upstream_manhole }}</td><td>{{ pipe.downstream_manhole }}</td><td>{{ pipe.function_code }}<br>{{ pipe.function }}</td><td>{{ pipe.length }}</td><td>{{ pipe.size }}</td><td>{{ pipe.material_code }}<br>{{ pipe.material }}</td><td>{{ pipe.abandoned_reason }}{% if pipe.remarks != "Not provided" %}<br>{{ pipe.remarks }}{% endif %}</td><td>{% set ns = namespace(count=0) %}{% for sheet in section_sheets if sheet.inspection.pipe_id == pipe.pipe_id %}{% set ns.count = ns.count + sheet.events|length %}{% endfor %}{{ ns.count if ns.count else "Not recorded" }}</td><td>{{ pipe.recommendation }}</td><td>{{ pipe.grade }}</td></tr>{% else %}<tr><td colspan="11">No pipe sections have been entered for this project.</td></tr>{% endfor %}
+  </tbody></table>
+  <div class="small">Total pipe sections: {{ pipe_count }} · Inspections: {{ inspection_count }} · CCTV video files: {{ video_count }} · Recorded events: {{ event_count }}</div>
+</section>
+
+<section class="section" id="section-appendices"><div class="section-divider"><div class="appendix-label">CCTV SURVEY REPORT</div><h2>Appendices</h2><p>{{ fixed_sections.get("appendices", {}).get("content", "Appendix I — Site Layout Plan\nAppendix II — CCTV Survey Report\nAppendix III — Photographic Sheet") }}</p></div></section>
+
+<section class="section" id="section-appendix-i">
+  <p class="eyebrow">APPENDIX I</p><h1 class="section-title">Appendix I — Site Layout Plan</h1>
+  {% for image in site_plan_images %}<div class="small">{{ image.file_name }}</div><img class="site-plan" src="{{ image.data_uri }}" alt="Site layout plan: {{ image.file_name }}">{% else %}<div class="no-evidence">No actual Site Layout Plan image is linked to this project.<br>Upload the checked drawing as an image to include it in Appendix I.</div>{% endfor %}
+</section>
+
+<section class="section" id="section-appendix-ii"><div class="section-divider"><div class="appendix-label">APPENDIX II</div><h2>CCTV Survey Report</h2><p>{{ project.project_name }} · {{ project.tv_reference_no or "TV Reference not provided" }}</p></div></section>
+
+<section class="section" id="section-project-information"><p class="eyebrow">APPENDIX II-A</p><h1 class="section-title">Project Information</h1>
+  <table class="data-table"><tbody>
+  <tr><th>Project Name</th><td>{{ project.project_name }}</td><th>Project Code</th><td>{{ project.project_code }}</td></tr>
+  <tr><th>Client</th><td>{{ project.client_name or "Not provided" }}</td><th>Location</th><td>{{ project.location or "Not provided" }}</td></tr>
+  <tr><th>Report Date</th><td>{{ project.report_date.strftime("%d/%m/%Y") if project.report_date else "Not provided" }}</td><th>TV Reference</th><td>{{ project.tv_reference_no or "Not provided" }}</td></tr>
+  <tr><th>Client Job Reference</th><td>{{ project.client_job_reference or "Not provided" }}</td><th>Contractor Job Reference</th><td>{{ project.contractor_job_reference or "Not provided" }}</td></tr>
+  <tr><th>Contractor</th><td>{{ project.contractor_name or "Not provided" }}</td><th>Project Manager</th><td>{{ project.project_manager_name or "Not provided" }}</td></tr>
+  <tr><th>Survey Dates</th><td>{{ project.survey_start_date.strftime("%d/%m/%Y") if project.survey_start_date else "Not provided" }}{% if project.survey_end_date %} – {{ project.survey_end_date.strftime("%d/%m/%Y") }}{% endif %}</td><th>Survey Provider</th><td>{{ company.company_name }}</td></tr>
+  <tr><th>Report Status</th><td>{{ project.report_status.replace("_", " ").title() }}</td><th>EUSR Certificate No.</th><td>{{ project.eusr_certificate_no or "Not provided" }}</td></tr>
+  </tbody></table>
+</section>
+
+<section class="section" id="section-survey-overview"><p class="eyebrow">APPENDIX II-B</p><h1 class="section-title">Survey Overview</h1>
+  <div class="report-stat-grid"><div class="stat"><strong>{{ pipe_count }}</strong><span>Pipe Sections</span></div><div class="stat"><strong>{{ total_length }} m</strong><span>Recorded Pipe Length</span></div><div class="stat"><strong>{{ inspection_count }}</strong><span>Inspections</span></div><div class="stat"><strong>{{ video_count }}</strong><span>Video Files</span></div><div class="stat"><strong>{{ event_count }}</strong><span>Recorded Events</span></div></div>
+  <p>Survey dates: {{ project.survey_start_date.strftime("%d/%m/%Y") if project.survey_start_date else "Not provided" }}{% if project.survey_end_date %} to {{ project.survey_end_date.strftime("%d/%m/%Y") }}{% endif %}.</p>
+  <p>US and DS direction, pipe endpoints, material code, diameter and section length are taken from each reviewed video filename where available.</p>
+  {% if inspection_rows %}<table class="data-table"><thead><tr><th>Pipe ID</th><th>Inspection No.</th><th>Date</th><th>Video Direction</th><th>Section Length (m)</th><th>Video File</th><th>SHA-256</th></tr></thead><tbody>{% for item in inspection_rows %}<tr><td>{{ item.pipe_id }}</td><td>{{ item.inspection_number }}</td><td>{{ item.date }}</td><td>{{ item.direction }}</td><td>{{ item.length }}</td><td>{{ item.video_name }}</td><td class="tiny code">{{ item.video_sha256 }}</td></tr>{% endfor %}</tbody></table>{% else %}<div class="note">No CCTV inspections have been imported for this project.</div>{% endif %}
+</section>
+
+<section class="section" id="section-section-summary"><p class="eyebrow">APPENDIX II-C</p><h1 class="section-title">Section Summary</h1>
+  <table class="data-table"><thead><tr><th>Pipe ID / PLR</th><th>Upstream Node</th><th>Downstream Node</th><th>Function</th><th>Length (m)</th><th>Size (mm)</th><th>Material</th><th>Status</th><th>Manual Grade</th></tr></thead><tbody>{% for pipe in pipe_rows %}<tr><td>{{ pipe.pipe_id }}<br>{{ pipe.section_reference }}</td><td>{{ pipe.upstream_manhole }}</td><td>{{ pipe.downstream_manhole }}</td><td>{{ pipe.function }}</td><td>{{ pipe.length }}</td><td>{{ pipe.size }}</td><td>{{ pipe.material_code }} — {{ pipe.material }}</td><td>{{ pipe.status }}</td><td>{{ pipe.grade }}</td></tr>{% else %}<tr><td colspan="9">No pipe sections recorded.</td></tr>{% endfor %}</tbody></table>
+</section>
+
+<section class="section" id="section-detailed-section-report"><p class="eyebrow">APPENDIX II-D</p><h1 class="section-title">Detailed Section Report</h1>
+  {% for item in inspection_rows %}<h2 class="sub-title">{{ item.pipe_id }} · {{ item.upstream_manhole }} to {{ item.downstream_manhole }}</h2><table class="data-table"><tbody><tr><th>Inspection No.</th><td>{{ item.inspection_number }}</td><th>Survey Date</th><td>{{ item.date }}</td><th>Direction</th><td>{{ item.direction }}</td></tr><tr><th>Video Start Node</th><td>{{ item.recording_start_manhole }}</td><th>Video Finish Node</th><td>{{ item.recording_finish_manhole }}</td><th>Survey Length</th><td>{{ item.length }} m</td></tr><tr><th>Video File</th><td colspan="5">{{ item.video_name }}{% if item.video_download_url %} · <a href="{{ item.video_download_url }}">Download</a>{% endif %}</td></tr></tbody></table>
+  {% if item.events %}<table class="data-table"><thead><tr><th>No.</th><th>Video Time</th><th>Distance (m)</th><th>Event</th><th>Clock Position</th><th>MSCC5 Code</th><th>Observation</th></tr></thead><tbody>{% for event in item.events %}<tr><td>{{ event.event_number }}</td><td>{{ event.timestamp }}</td><td>{{ event.distance_m }}</td><td>{{ event.event_type }}</td><td>{{ event.clock_position }}</td><td>{{ event.mscc_code }}</td><td>{{ event.observation }}</td></tr>{% endfor %}</tbody></table>{% else %}<p class="small">No event observations have been recorded for this inspection.</p>{% endif %}{% else %}<p>No detailed inspection records have been entered.</p>{% endfor %}
+</section>
+
+<section class="section" id="section-defect-summary"><p class="eyebrow">APPENDIX II-E</p><h1 class="section-title">Defect Summary</h1>
+  <table class="data-table"><thead><tr><th>Pipe ID</th><th>Inspection No.</th><th>Event No.</th><th>Video Time</th><th>Distance (m)</th><th>Clock Position</th><th>MSCC5 Code</th><th>Description</th></tr></thead><tbody>{% for sheet in section_sheets %}{% for event in sheet.events %}{% if event.event_type == "Defect" %}<tr><td>{{ sheet.inspection.pipe_id }}</td><td>{{ sheet.inspection.inspection_number }}</td><td>{{ event.event_number }}</td><td>{{ event.timestamp }}</td><td>{{ event.distance_m }}</td><td>{{ event.clock_position }}</td><td>{{ event.mscc_code }}</td><td>{{ event.observation }}</td></tr>{% endif %}{% endfor %}{% endfor %}</tbody></table>
+  {% if event_count == 0 %}<div class="note">No defect events have been entered. This report does not automatically detect defects.</div>{% endif %}
+</section>
+
+<section class="section" id="section-section-profile"><p class="eyebrow">APPENDIX II-F</p><h1 class="section-title">Section Profile</h1>
+  {% for pipe in pipe_rows %}<h2 class="sub-title">{{ pipe.pipe_id }} · {{ pipe.section_reference }}</h2><table class="profile-table"><tr><td width="23%"><strong>Upstream</strong><br>{{ pipe.upstream_manhole }}<br><span class="small">Invert: {{ pipe.start_level }} m</span></td><td width="54%"><div class="profile-line"></div><div class="small" style="text-align:center">{{ pipe.length }} m · {{ pipe.size }} mm · {{ pipe.material }}</div></td><td width="23%"><strong>Downstream</strong><br>{{ pipe.downstream_manhole }}<br><span class="small">Invert: {{ pipe.finish_level }} m</span></td></tr></table>{% else %}<p>No section profiles are available.</p>{% endfor %}
+</section>
+
+<section class="section" id="section-scoring-summary"><p class="eyebrow">APPENDIX II-G</p><h1 class="section-title">Scoring Summary</h1>
+  <p>Condition grades and recommendations below are included only where entered in the project record. No score, risk grade, MSCC5 code or engineering recommendation is automatically calculated by this application.</p>
+  <table class="data-table"><thead><tr><th>Pipe ID</th><th>Condition Grade</th><th>Recommendation</th></tr></thead><tbody>{% for pipe in pipe_rows %}<tr><td>{{ pipe.pipe_id }}</td><td>{{ pipe.grade }}</td><td>{{ pipe.recommendation }}</td></tr>{% else %}<tr><td colspan="3">No pipe grading records.</td></tr>{% endfor %}</tbody></table>
+  <h2 class="sub-title">Grade Guidance</h2>
+  <div class="grade-note"><strong>Grade 3:</strong> Best practice suggests consideration should be given to maintenance activities in the medium term.</div>
+  <div class="grade-note"><strong>Grade 4:</strong> Best practice suggests consideration should be given to maintenance activities to avoid potential blockages.</div>
+  <div class="grade-note"><strong>Grade 5:</strong> Best practice suggests this pipe is at a high risk of backing up or causing flooding.</div>
+  <h2 class="sub-title">Material Types</h2><div class="material-list">{% for code, material in [("VC", "Vitrified clay"), ("CI", "Cast iron"), ("DI", "Ductile iron"), ("CO", "Concrete"), ("PVC", "Polyvinyl chloride"), ("PE", "Polyethylene")] %}<div><span class="code">{{ code }}</span> &nbsp; = &nbsp; {{ material }}</div>{% endfor %}</div>
+</section>
+
+<section class="section" id="section-survey-status"><p class="eyebrow">APPENDIX II-H</p><h1 class="section-title">Survey Status and Uncertainty Notes</h1>
+  <table class="data-table"><thead><tr><th>Pipe ID</th><th>Survey Status</th><th>Abandonment Reason</th><th>Remarks</th></tr></thead><tbody>{% for pipe in pipe_rows %}<tr><td>{{ pipe.pipe_id }}</td><td>{{ pipe.status }}</td><td>{{ pipe.abandoned_reason }}</td><td>{{ pipe.remarks }}</td></tr>{% else %}<tr><td colspan="4">No pipe survey status has been entered.</td></tr>{% endfor %}</tbody></table>
+  <div class="note">Filename-derived values are reviewed input data. Video footage is referenced by file name and SHA-256 where the file is stored. Missing information is identified as not provided; the application does not infer video content, defects, grades, risk, or recommendations. The project manager must verify the report and any contractual statements before issue.</div>
+</section>
+
+<section class="section" id="section-appendix-iii"><div class="section-divider"><div class="appendix-label">APPENDIX III</div><h2>Photographic Sheet</h2><p>Inspection time, section distance, recorded observations and video stills</p></div></section>
+
+{% for sheet in section_sheets %}
+<section class="section wide"><p class="eyebrow">APPENDIX III · {{ sheet.inspection.pipe_id }}</p><h1 class="section-title">{{ sheet.inspection.pipe_id }} — Inspection {{ sheet.inspection.inspection_number }}</h1>
+  <div class="small">{{ sheet.inspection.upstream_manhole }} to {{ sheet.inspection.downstream_manhole }} · {{ sheet.inspection.direction }} · {{ sheet.inspection.date }} · {{ sheet.inspection.video_name }}</div>
+  <div class="timeline-layout"><div class="timeline-column"><div class="timeline-title">SECTION DISTANCE / VIDEO TIMELINE</div><div class="timeline-axis"><span class="timeline-end start">0.00 m<br>Start</span>{% for event in sheet.events %}<span class="timeline-marker" style="top:{{ event.timeline_position }}%" data-label="{{ event.distance_m }} m · {{ event.timestamp }}"></span>{% endfor %}<span class="timeline-end finish">{{ sheet.inspection.length }} m<br>Finish</span></div></div>
+  <div class="timeline-details"><div class="timeline-title">INSPECTION DETAILS / RECORDED EVENTS</div><p class="small">Video direction: {{ sheet.inspection.direction }} · Start: {{ sheet.inspection.recording_start_manhole }} · Finish: {{ sheet.inspection.recording_finish_manhole }}</p>
+  {% for event in sheet.events %}<article class="event-card"><h3>Event {{ event.event_number }} · {{ event.event_type }}</h3><div class="event-meta"><span>Video time: {{ event.timestamp }}</span><span>Distance: {{ event.distance_m }} m</span><span>Clock: {{ event.clock_position }}</span><span>MSCC5: {{ event.mscc_code }}</span></div><div class="event-description">{{ event.observation }}</div></article>{% else %}<div class="note">No events have been recorded for this inspection.</div>{% endfor %}</div></div>
+</section>
+<section class="section wide"><p class="eyebrow">APPENDIX III — PHOTOGRAPHIC SHEET</p><h1 class="section-title photo-sheet-title">Section Pictures — {{ sheet.inspection.date_header }} — {{ sheet.inspection.pipe_id }}</h1>
+  <div class="small">Survey date: {{ sheet.inspection.date }} · {{ sheet.inspection.upstream_manhole }} to {{ sheet.inspection.downstream_manhole }} · {{ sheet.inspection.video_name }}</div>
+  <table class="photo-sheet-table"><thead>
+    <tr><th>Item No.</th><th>Inspection Direction</th><th>PLR</th><th>Client's Job Ref</th><th>Contractor's Job Ref</th></tr>
+    <tr><td>{{ sheet.inspection.inspection_number }}</td><td>{{ sheet.inspection.direction }}</td><td>{{ sheet.inspection.pipe_id }}</td><td>{{ project.client_job_reference or "Not provided" }}</td><td>{{ project.contractor_job_reference or "Not provided" }}</td></tr>
+  </thead><tbody>
+  {% for event in sheet.photo_events %}<tr class="photo-record"><td colspan="5"><figure class="photo-card"><img src="{{ event.photo_uri }}" alt="Video frame for event {{ event.event_number }} at {{ event.timestamp }}"><figcaption class="photo-caption"><div class="photo-no">{{ event.event_number }}, {{ event.timestamp }}, {{ event.distance_m }} m</div><p>{{ event.event_type }}</p><p>Clock position: {{ event.clock_position }}</p><p>MSCC5 code: {{ event.mscc_code }}</p><p>{{ event.observation }}</p></figcaption></figure></td></tr>{% else %}<tr><td colspan="5"><div class="no-evidence">No defect or event frame has been recorded for this CCTV inspection.<br>No substitute or synthetic photograph is included.</div></td></tr>{% endfor %}
+  </tbody></table>
+</section>
+{% else %}<section class="section"><p class="eyebrow">APPENDIX III</p><h1 class="section-title">Photographic Sheet</h1><div class="no-evidence">No CCTV inspections are recorded for this project.</div></section>{% endfor %}
+</body>
+</html>
